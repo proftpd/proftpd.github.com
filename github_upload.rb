@@ -3,7 +3,7 @@
 require 'rubygems'
 require 'net/github-upload'
 require 'yaml'
-require 'erb'
+require 'erubis'
 
 repo = 'proftpd/proftpd-downloads'
 prefix = "https://github.com/downloads/proftpd/proftpd-downloads/"
@@ -40,13 +40,16 @@ end
 
 file_listing.sort! {|x,y| y[:mtime] <=> x[:mtime]}
 
-puts file_listing
-
 remotefiles = Hash.new
 remotelisting.each { |f| remotefiles[f[:name]] = f[:id] }
 
 to_delete = remotefiles.keys - localfiles
 to_upload = localfiles - remotefiles.keys
+
+if to_upload.count == 0 && to_delete.count == 0
+	puts "No new/deleted files, exiting"
+#	exit
+end
 
 to_delete.each do |file|
 	puts "Deleting from github: " + file
@@ -57,6 +60,11 @@ to_upload.each do |file|
 	puts "Uploading to github: " + file
 	gh.upload(:repos => repo, :file => [localdir, file].join('/'))
 end
+
+erb = Erubis::Eruby.new(File.read('index.html.erb'))
+File.open('index.html', 'w') { |f|
+	f.write(erb.result(:downloads => file_listing))
+}
 
 cmd = "git commit index.html -m \"auto-update: %s\"" % [ Time.now() ]
 system(cmd)
