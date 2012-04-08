@@ -2,18 +2,19 @@
 
 require 'rubygems'
 require 'net/github-upload'
-require 'pp'
 require 'yaml'
+require 'erb'
 
 repo = 'proftpd/proftpd-downloads'
-localdir = '/home/robe/source/proftpd-mirror'
 prefix = "https://github.com/downloads/proftpd/proftpd-downloads/"
 
-creds = YAML.load_file("github_upload.conf")
+config = YAML.load_file("github_upload.conf")
+
+localdir = config["localdir"]
 
 gh = Net::GitHub::Upload.new(
-	:login => creds["login"],
-	:token => creds["token"]
+	:login => config["login"],
+	:token => config["token"]
 )
 
 remotelisting = gh.list_files(repo)
@@ -57,3 +58,7 @@ to_upload.each do |file|
 	gh.upload(:repos => repo, :file => [localdir, file].join('/'))
 end
 
+cmd = "git commit index.html -m \"auto-update: %s\"" % [ Time.now() ]
+system(cmd)
+cmd = "git push"
+system(cmd)
