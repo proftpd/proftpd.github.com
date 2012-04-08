@@ -1,0 +1,3 @@
+login: yourusername
+token: yourtoken
+localdir: /path/to/mirror/file/directory
