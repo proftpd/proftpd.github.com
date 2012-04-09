@@ -33,6 +33,10 @@ body {
   background-color: rgb(255,230,230);
 }
 
+.download:first-child {
+  background-color: #AAFFBB;
+}
+
 .download h2, .download p {
   margin: 0;
   padding: 0;
