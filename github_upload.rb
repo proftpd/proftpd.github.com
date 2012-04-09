@@ -1,29 +1,60 @@
 #!/usr/bin/env ruby1.9.1
 
 require 'rubygems'
-require 'net/github-upload'
+require 'github_api'
 require 'yaml'
 require 'erubis'
+require 'pp'
 
 
 config = YAML.load_file("github_upload.conf")
 localdir = config["localdir"]
-repo = config["downloadrepo"]
+repoowner = config["repo-owner"]
+repo = config["repo-name"]
+@github = Github.new :login => config["login"], :password => config["password"]
 
-gh = Net::GitHub::Upload.new(
-	:login => config["login"],
-	:token => config["token"]
-)
-
-downloadbaseurl = "https://github.com/downloads/%s/" % [ repo ]
+# Upload & delete files on Github
 
 puts "*** Building file lists from remote repository and local directory"
-remotelisting = gh.list_files(repo)
+remotelisting = @github.repos.downloads repoowner, repo
 localfiles = Dir.entries(localdir).delete_if { |f| f[0] == '.' }
 
+remotefiles = Hash.new
+remotelisting.each { |f| remotefiles[f[:name]] = f[:id] }
+
+to_delete = remotefiles.keys - localfiles
+to_upload = localfiles - remotefiles.keys
+
+to_delete.each do |file|
+	puts "*** Deleting from github: " + file
+	@github.repos.delete_download repoowner, repo, remotefiles[file]
+end
+
+to_upload.each do |filename|
+	puts "*** Uploading to github: " + filename
+	localfilename = [localdir, filename].join('/')
+	filesize = File.new(localfilename).size.to_i
+	resource = @github.repos.create_download repoowner, repo,
+		"name" => filename,
+		"size" => filesize
+	pp resource, filesize
+	begin
+		@github.repos.upload resource, localfilename
+	rescue Exception => e
+		puts "*** Failed to upload: " + filename
+		puts e
+		@github.repos.delete_download repoowner, repo, resource.id
+	end
+end
+
+
+# Update the index.html
+
+# Build a list of available versions based on filenames
 versions = localfiles.map { |f| f.split(/\.tar/)[0] }
 versions.uniq!
 
+downloadbaseurl = "https://github.com/downloads/%s/" % [ repo ]
 file_listing = Array.new
 versions.each do |version|
 	entry = Hash[
@@ -41,22 +72,6 @@ end
 
 file_listing.sort! {|x,y| y[:mtime] <=> x[:mtime]}
 
-remotefiles = Hash.new
-remotelisting.each { |f| remotefiles[f[:name]] = f[:id] }
-
-to_delete = remotefiles.keys - localfiles
-to_upload = localfiles - remotefiles.keys
-
-
-to_delete.each do |file|
-	puts "*** Deleting from github: " + file
-	gh.delete(repo, remotefiles[file])
-end
-
-to_upload.each do |file|
-	puts "*** Uploading to github: " + file
-	gh.upload(:repos => repo, :file => [localdir, file].join('/'))
-end
 
 puts "*** Generating index.html"
 
@@ -67,7 +82,7 @@ File.open('index.html', 'w') { |f|
 
 puts "*** Pushing index.html to github"
 
-cmd = "git commit index.html -m \"auto-update: %s\"" % [ Time.now() ]
+cmd = "git commit -q index.html -m \"index.html auto-update: %s\"" % [ Time.now() ]
 system(cmd)
-cmd = "git push"
+cmd = "git push -q"
 system(cmd)

@@ -1,4 +1,5 @@
 login: yourusername
-token: yourtoken
+password: yourpass
 localdir: /path/to/mirror/file/directory
-downloadrepo: yourGHproject/yourGHrepo
+repo-owner: github-project-owner
+repo-name: github-repo-name
