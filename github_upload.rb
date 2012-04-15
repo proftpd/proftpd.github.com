@@ -80,9 +80,16 @@ File.open('index.html', 'w') { |f|
 	f.write(erb.result(:downloads => file_listing))
 }
 
-puts "*** Pushing index.html to github"
 
-cmd = "git commit -q index.html -m \"index.html auto-update: %s\"" % [ Time.now() ]
-system(cmd)
-cmd = "git push -q"
-system(cmd)
+
+changed = `git status --porcelain index.html`
+
+if changed.strip.length > 0
+	puts "*** Pushing index.html to github"
+	cmd = "git commit -q index.html -m \"index.html auto-update: %s\"" % [ Time.now() ]
+	system(cmd)
+	cmd = "git push -q https://%s:%s@github.com/%s/%s.git" % [ config["login"], config["password"], repoowner, repo ]
+	system(cmd)
+else
+	puts "*** index.html unchanged"
+end

@@ -1,0 +1,10 @@
+This script
+
+* synchronizes the files in a local directory with the "Downloads" section of a chosen Github repository
+* generates an index.html based on the files in the directory
+* commits and pushes the index.html
+
+
+Limitations:
+
+* Local directory must not containt subdirectories
