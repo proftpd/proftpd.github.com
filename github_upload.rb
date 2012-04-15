@@ -54,7 +54,7 @@ end
 versions = localfiles.map { |f| f.split(/\.tar/)[0] }
 versions.uniq!
 
-downloadbaseurl = "https://github.com/downloads/%s/" % [ repo ]
+downloadbaseurl = "https://github.com/downloads/%s/%s/" % [ repoowner, repo ]
 file_listing = Array.new
 versions.each do |version|
 	entry = Hash[
