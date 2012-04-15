@@ -7,4 +7,5 @@ This script
 
 Limitations:
 
-* Local directory must not containt subdirectories
+* Local directory must not contain subdirectories
+* Doesn't do any CWD-validation at the moment
