@@ -1,10 +1,11 @@
 #!/usr/bin/env ruby1.9.1
 
 require 'rubygems'
+
+gem 'github_api', '>= 0.4.10'
 require 'github_api'
 require 'yaml'
 require 'erubis'
-require 'pp'
 
 
 config = YAML.load_file("github_upload.conf")
@@ -37,7 +38,6 @@ to_upload.each do |filename|
 	resource = @github.repos.create_download repoowner, repo,
 		"name" => filename,
 		"size" => filesize
-	pp resource, filesize
 	begin
 		@github.repos.upload resource, localfilename
 	rescue Exception => e
