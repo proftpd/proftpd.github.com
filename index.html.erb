@@ -20,15 +20,17 @@
               <a href="<%= download[:gzmd5] %>" title="ProFTPD <%= download[:version] %> GZIP MD5 Checksum">md5</a>
             </div>
           </div>
-          <div class="bz2version">
-            <a class="bz2link" href="<%= download[:bz2link] %>" title="ProFTPD <%= download[:version] %> BZ2">BZ2</a>
-            <div class="bz2sig sig">
-              <a href="<%= download[:bz2sig] %>" title="ProFTPD <%= download[:version] %> BZ2 Signature">sig</a>
+          <% if download.has_key?(:bz2link) %>
+            <div class="bz2version">
+              <a class="bz2link" href="<%= download[:bz2link] %>" title="ProFTPD <%= download[:version] %> BZ2">BZ2</a>
+              <div class="bz2sig sig">
+                <a href="<%= download[:bz2sig] %>" title="ProFTPD <%= download[:version] %> BZ2 Signature">sig</a>
+              </div>
+              <div class="bz2md5 md5">
+                <a href="<%= download[:bz2md5] %>" title="ProFTPD <%= download[:version] %> BZ2 MD5 Checksum">md5</a>
+              </div>
             </div>
-            <div class="bz2md5 md5">
-              <a href="<%= download[:bz2md5] %>" title="ProFTPD <%= download[:version] %> BZ2 MD5 Checksum">md5</a>
-            </div>
-          </div>
+          <% end %>
         </div>
       <% end %>
     </div>

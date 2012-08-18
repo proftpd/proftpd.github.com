@@ -63,10 +63,12 @@ versions.each do |version|
 		:gzlink => "%s%s.tar.gz" % [downloadbaseurl, version],
 		:gzsig => "%s%s.tar.gz.asc" % [downloadbaseurl, version],
 		:gzmd5 => "%s%s.tar.gz.md5" % [downloadbaseurl, version],
-		:bz2link => "%s%s.tar.bz2" % [downloadbaseurl, version],
-		:bz2sig => "%s%s.tar.bz2.asc" % [downloadbaseurl, version],
-		:bz2md5 => "%s%s.tar.bz2.md5" % [downloadbaseurl, version]
 	]
+	if localfiles.include?("%s.tar.bz2" % [version])
+		entry[:bz2link] = "%s%s.tar.bz2" % [downloadbaseurl, version]
+		entry[:bz2sig] = "%s%s.tar.bz2.asc" % [downloadbaseurl, version]
+		entry[:bz2md5] = "%s%s.tar.bz2.md5" % [downloadbaseurl, version]
+	end
 	file_listing.push entry
 end
 
